@@ -76,7 +76,7 @@ export default function TradeExitForm({
         exit_energy: energy,
         exit_confidence: confidence,
       });
-      router.push(`/trade/${tradeId}`);
+      router.push(`/trade/${tradeId}/analysis`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to close trade");

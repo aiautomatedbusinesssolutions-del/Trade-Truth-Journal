@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/layout/Navbar";
+import AlertChecker from "@/components/layout/AlertChecker";
 
 export default async function ProtectedLayout({
   children,
@@ -19,6 +20,7 @@ export default async function ProtectedLayout({
   return (
     <div className="min-h-screen">
       <Navbar />
+      <AlertChecker />
       <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
     </div>
   );

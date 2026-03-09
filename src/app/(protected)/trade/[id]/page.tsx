@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import HindsightCard from "@/components/analysis/HindsightCard";
 
 const MOOD_EMOJIS = ["😰", "😟", "😐", "🙂", "😄"];
 
@@ -23,6 +24,17 @@ export default async function TradeDetailPage({
   }
 
   const isClosed = trade.status === "closed";
+
+  // Fetch hindsight checks for closed trades
+  let hindsightChecks: { id: string; check_type: "24h" | "7d" | "30d"; price_at_check: number | null; price_change_percent: number | null; is_completed: boolean; check_date: string }[] = [];
+  if (isClosed) {
+    const { data } = await supabase
+      .from("hindsight_checks")
+      .select("id, check_type, price_at_check, price_change_percent, is_completed, check_date")
+      .eq("trade_id", id)
+      .order("check_date", { ascending: true });
+    hindsightChecks = (data ?? []) as typeof hindsightChecks;
+  }
 
   return (
     <div className="max-w-lg mx-auto">
@@ -178,6 +190,26 @@ export default async function TradeDetailPage({
           className="block text-center bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-lg transition-colors mt-6"
         >
           Close Trade
+        </Link>
+      )}
+
+      {/* Hindsight Checks (closed trades) */}
+      {isClosed && hindsightChecks.length > 0 && (
+        <div className="mt-4">
+          <HindsightCard
+            checks={hindsightChecks}
+            exitPrice={Number(trade.exit_price)}
+          />
+        </div>
+      )}
+
+      {/* View Analysis (closed trades) */}
+      {isClosed && (
+        <Link
+          href={`/trade/${trade.id}/analysis`}
+          className="block text-center bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 rounded-lg transition-colors mt-6"
+        >
+          View AI Analysis
         </Link>
       )}
     </div>
